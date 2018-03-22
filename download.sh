@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ "$1" = "hico" ]]; then
+if [[ "$1" = "hico_data" ]]; then
     mkdir "$1"
     echo "Downlading from http://napoli18.eecs.umich.edu/public_html/data/hico_20150920.tar.gz"
     curl http://napoli18.eecs.umich.edu/public_html/data/hico_20150920.tar.gz --output "$1"/hico_20150920.tar.gz
