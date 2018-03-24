@@ -1,0 +1,26 @@
+environment:
+
+  matrix:
+
+    - PYTHON: "C:\\Python35-x64"
+    - PYTHON: "C:\\Python36-x64"
+
+install:
+  # We need wheel installed to build wheels
+  - "%PYTHON%\\python.exe -m pip install --upgrade pip"
+  - "%PYTHON%\\python.exe -m pip install wheel"
+  - "%PYTHON%\\python.exe -m pip install -r requirements.txt"
+  - "%PYTHON%\\python.exe -m pip install -r requirements.testing.txt"
+  - "%PYTHON%\\python.exe -m pip install -e ."
+
+build: off
+
+test_script:
+  - "%PYTHON%\\python.exe -m pytest -s -v --cov-report xml --cov=hico_multi_classification"
+
+after_test:
+  - "%PYTHON%\\python.exe setup.py bdist_wheel"
+
+artifacts:
+  # bdist_wheel puts your built wheel in the dist directory
+  - path: dist\*
