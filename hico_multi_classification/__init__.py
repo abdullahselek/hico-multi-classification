@@ -13,6 +13,6 @@ __url__          = 'https://github.com/abdullahselek/hico-multi-classification'
 __download_url__ = 'https://github.com/abdullahselek/hico-multi-classification'
 __description__  = 'A Benchmark for Recognizing Human-Object Interactions in Images with Pyhton.'
 
-from hico_multi_classification import (
-    hico_processor
+from hico_multi_classification.hico_processor import (
+    HicoProcessor
 )
