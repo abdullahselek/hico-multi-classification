@@ -30,5 +30,26 @@ class HicoProcessor(object):
           anno_mat_dir (str):
             File name for annotation mat file.
         """
+
         path = os.path.join(data_dir, anno_mat)
         return sio.loadmat(path)
+
+    def __prepare_output_labels(self,
+                                anno_mat,
+                                key,
+                                file_name):
+        """Prepare output labels to generate labels.
+        Args:
+          anno_mat (dict):
+            Dictionary with variable names as keys, and loaded matrices as values.
+          key (str):
+            Key to training or test receive from dict.
+        Returns:
+          entry, labels_file:
+            entry (i,j) is the annotation of training or test image j on action i.
+            file path for label file.
+        """
+
+        anno_dict = anno_mat[key]
+        labels_file = os.path.join(self._data_dir, file_name)
+        return anno_dict, labels_file
