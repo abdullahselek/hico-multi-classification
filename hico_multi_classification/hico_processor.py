@@ -109,3 +109,27 @@ class HicoProcessor(object):
 			          filename = map(str, row[0])
 			          filename = ''.join(filename)
 			          f.write('{}\n'.format(filename))
+
+    def process(self):
+        """Start processing train and test files."""
+
+        # Read the labels from annotation mat file
+        anno_mat = self.__load_mat(self._data_dir, self._anno_mat)
+        # Output labels
+        anno_train = anno_mat['anno_train']
+        labels_train_file = os.path.join(self._data_dir, 'labels_train.txt')
+        self.__generate_labels_file(anno_train, labels_train_file)
+        anno_test = anno_mat['anno_test']
+        labels_test_file = os.path.join(self._data_dir, 'labels_test.txt')
+        self.__generate_labels_file(anno_test, labels_test_file)
+        # Output label_text
+        list_action = anno_mat['list_action']
+        label_text_file = os.path.join(self._data_dir, 'label_text.txt')
+        self.__prepare_output_texts(label_text_file, list_action)
+        # Output filenames
+        filenames_train = anno_mat['list_train']
+        filenames_train_file = os.path.join(self._data_dir, 'filenames_train.txt')
+        self.__generate_filenames_file(filenames_train, filenames_train_file)
+        filenames_test = anno_mat['list_test']
+        filenames_test_file = os.path.join(self._data_dir, 'filenames_test.txt')
+        self.__generate_filenames_file(filenames_test, filenames_test_file)
