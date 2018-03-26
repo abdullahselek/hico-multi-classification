@@ -39,6 +39,7 @@ setup(
     packages=find_packages(exclude=('tests', 'docs')),
     include_package_data=True,
     platforms=['Any'],
+    install_requires=['future', 'tensorflow', 'numpy', 'scipy', 'click'],
     setup_requires=['pytest-runner'],
     tests_require=['pytest'],
     python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, <4',
