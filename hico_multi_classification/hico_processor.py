@@ -53,3 +53,24 @@ class HicoProcessor(object):
         anno_dict = anno_mat[key]
         labels_file = os.path.join(self._data_dir, file_name)
         return anno_dict, labels_file
+
+    def __generate_labels_file(self,
+                               anno_dict,
+                               output_path):
+        """Generate files for given label dicts.
+        Args:
+          anno_dict (dict):
+            Dictionary with variable names as keys, and loaded matrices as values.
+          output_path (str):
+            File path to create labels.
+        """
+        labels = []
+        for data in anno_dict.T:
+            indices = [i for i,v in enumerate(data) if v == 1]
+            labels.append(indices)
+
+        with open(output_path, 'w') as f:
+            for row in labels:
+                for item in row:
+                    f.write('{} '.format(item))
+                    f.write('\n')
