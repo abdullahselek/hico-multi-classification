@@ -64,6 +64,7 @@ class HicoProcessor(object):
           output_path (str):
             File path to create labels.
         """
+
         labels = []
         for data in anno_dict.T:
             indices = [i for i,v in enumerate(data) if v == 1]
@@ -74,3 +75,37 @@ class HicoProcessor(object):
                 for item in row:
                     f.write('{} '.format(item))
                     f.write('\n')
+
+    def __prepare_output_texts(self,
+                               label_text_file,
+                               list_action):
+        """Prepare files for output texts.
+        Args:
+          label_text_file (str):
+            File path to create output texts.
+          list_action (struct):
+            Each entry is one HOI category
+        """
+
+        with open(label_text_file, 'w') as f:
+		        for i, row in enumerate(list_action):
+			          obj = row['nname'][0]
+			          obj = ''.join(map(str, obj))
+			          verb = row['vname'][0]
+			          verb = ''.join(map(str, verb))
+			          f.write('{} {} {}\n'.format(i, obj, verb))
+
+    def __generate_filenames_file(self, filenames_split, output_path):
+        """Generate files for train and test files.
+        Args:
+          filenames_split (array):
+            Entry is a file name of an training or test image.
+          output_path (str):
+            File path for output file.
+        """
+
+        with open(output_path, 'w') as f:
+		        for row in filenames_split:
+			          filename = map(str, row[0])
+			          filename = ''.join(filename)
+			          f.write('{}\n'.format(filename))
