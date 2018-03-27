@@ -101,5 +101,6 @@ ENV/
 .mypy_cache/
 
 # hico
-hico_data/
-inception/
+/hico_data/
+/inception/
+/testdata/hico_data/**/*.txt
