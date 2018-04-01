@@ -132,3 +132,24 @@ class TFRecordConverter(object):
             'image/class/verb': self.__bytes_feature(verb)
             }))
         return example
+
+class ImageCoder(object):
+    """Helper class that provides TensorFlow image coding utilities."""
+
+    def __init__(self):
+        # Create a single Session to run all image coding calls.
+        self._tfsession = tf.Session()
+
+        # Initializes function that converts PNG to JPEG data.
+        self._png_data = tf.placeholder(dtype=tf.string)
+        image = tf.image.decode_png(self._png_data, channels=3)
+        self._png_to_jpeg = tf.image.encode_jpeg(image, format='rgb', quality=100)
+
+        # Initializes function that converts CMYK JPEG data to RGB JPEG data.
+        self._cmyk_data = tf.placeholder(dtype=tf.string)
+        image = tf.image.decode_jpeg(self._cmyk_data, channels=0)
+        self._cmyk_to_rgb = tf.image.encode_jpeg(image, format='rgb', quality=100)
+
+        # Initializes function that decodes RGB JPEG data.
+        self._decode_jpeg_data = tf.placeholder(dtype=tf.string)
+        self._decode_jpeg = tf.image.decode_jpeg(self._decode_jpeg_data, channels=3)
