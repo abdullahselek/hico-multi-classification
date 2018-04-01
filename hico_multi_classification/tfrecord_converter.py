@@ -80,3 +80,55 @@ class TFRecordConverter(object):
         if not isinstance(value, list):
             value = [value]
         return tf.train.Feature(bytes_list=tf.train.BytesList(value=value))
+
+    def __convert_to_example(self,
+                             image_data,
+                             filename,
+                             label,
+                             label_text,
+                             height,
+                             width):
+        """Build an Example proto for an example.
+
+        Args:
+          image_data (str):
+            JPEG encoding of RGB image
+          filename (str):
+            filename of an image
+          label (list of floats):
+            identifier for the ground truth
+          label_text (list of str):
+            e.g. ['airplane board', 'airplane ride']
+          height (integer):
+            image height in pixels
+          width (integer):
+            image width in pixels
+        Returns:
+          Example proto
+        """
+
+        colorspace = 'RGB'
+        channels = 3
+        image_format = 'JPEG'
+
+        obj = []
+        verb = []
+
+        for text in label_text:
+            assert len(text) == 2
+            obj.append(text[0])
+            verb.append(text[1])
+
+        example = tf.train.Example(features=tf.train.Features(feature={
+            'image/height': self.__int64_feature(height),
+            'image/width': self.__int64_feature(width),
+            'image/colorspace': self.__bytes_feature(colorspace),
+            'image/channels': self.__int64_feature(channels),
+            'image/format': self.__bytes_feature(image_format),
+            'image/filename': self.__bytes_feature(filename),
+            'image/encoded': self.__bytes_feature(image_data),
+            'image/class/label': self.__bytes_feature(label),
+            'image/class/object': self.__bytes_feature(obj),
+            'image/class/verb': self.__bytes_feature(verb)
+            }))
+        return example
