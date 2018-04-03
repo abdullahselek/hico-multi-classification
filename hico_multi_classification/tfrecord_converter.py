@@ -170,6 +170,15 @@ class TFRecordConverter(object):
 
         return image_data, height, width
 
+    def __get_output_filename(self,
+                              output_dir,
+                              name,
+                              shard,
+                              num_shards):
+        output_filename = '%s-%.5d-of-%.5d.tfrecord' % (name, shard, num_shards)
+        output_file = os.path.join(output_dir, output_filename)
+        return output_file
+
 class ImageCoder(object):
     """Helper class that provides TensorFlow image coding utilities."""
 
