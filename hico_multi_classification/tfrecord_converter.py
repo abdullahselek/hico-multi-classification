@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from __future__ import division
+import os
 import tensorflow as tf
 
 tf.app.flags.DEFINE_string('data_dir', './hico_data/',
@@ -132,6 +133,42 @@ class TFRecordConverter(object):
             'image/class/verb': self.__bytes_feature(verb)
             }))
         return example
+
+    def __process_image(self,
+                        data_dir,
+                        filename,
+                        coder):
+        """Process a single image file.
+
+        Args:
+          data_dir (str):
+            Root directory of images
+          filename (str):
+            Filename of an image file.
+          coder (ImageCoder):
+            Instance of ImageCoder to provide TensorFlow image coding utils.
+        Returns:
+          image_data (str):
+            JPEG encoding of RGB image.
+          height (int):
+            Image height in pixels.
+          width (int):
+            Image width in pixels.
+        """
+        # Read the image file.
+        file_path = os.path.join(data_dir, filename)
+        image_data = tf.gfile.FastGFile(file_path, 'r').read()
+
+        # Decode the RGB JPEG.
+        image = coder.decode_jpeg(image_data)
+
+        # Check that image converted to RGB
+        assert len(image.shape) == 3
+        height = image.shape[0]
+        width = image.shape[1]
+        assert image.shape[2] == 3
+
+        return image_data, height, width
 
 class ImageCoder(object):
     """Helper class that provides TensorFlow image coding utilities."""
