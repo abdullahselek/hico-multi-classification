@@ -179,6 +179,36 @@ class TFRecordConverter(object):
         output_file = os.path.join(output_dir, output_filename)
         return output_file
 
+    def __build_label_lookup(self, label_text):
+        """Build lookup for label to object-verb description.
+
+        Args:
+          label_text (str): path to file containing mapping from
+          label to object-verb description.
+
+          Assumes each line of the file looks like:
+            0 airplane board
+            1 airplane direct
+            2 airplane exit
+
+          where each line corresponds to a unique mapping. Note that each line is
+          formatted as <label> <object> <verb>.
+
+        Returns:
+          Dictionary of synset to human labels, such as:
+            0 --> 'airplane board'
+        """
+        lines = tf.gfile.FastGFile(label_text, 'r').readlines()
+        label_to_text = {}
+        for line in lines:
+            if line:
+                parts = line.strip().split(' ')
+                assert len(parts) == 3
+                label = int(parts[0])
+                text = parts[1:]
+                label_to_text[label] = text
+        return label_to_text
+
 class ImageCoder(object):
     """Helper class that provides TensorFlow image coding utilities."""
 
