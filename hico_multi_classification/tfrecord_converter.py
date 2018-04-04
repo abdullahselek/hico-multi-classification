@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 
 from __future__ import division
+import sys
 import os
+from datetime import datetime
 import tensorflow as tf
+import numpy as np
 
 tf.app.flags.DEFINE_string('data_dir', './hico_data/',
 						   'Data directory')
@@ -208,6 +211,96 @@ class TFRecordConverter(object):
                 text = parts[1:]
                 label_to_text[label] = text
         return label_to_text
+
+    def __process_dataset(self,
+                          name,
+                          data_dir,
+                          filenames_file,
+                          labels_file,
+                          num_shards,
+                          label_to_text,
+                          output_dir):
+        """Process a complete data set and save it as a TFRecord.
+
+        Args:
+          name (str): unique identifier specifying the data set.
+          data_dir (str): root path to the data set.
+          filenames_file (str) path to the filenames file
+          labels_file (str): path to the label file
+          num_shard (int): number of shards for this data set.
+          label_to_text (dict): key-value of label to object-verb descriptions, e.g.,
+            0 --> 'airplane, board'
+          output_dir (str): path to the output directory
+        """
+
+        lines = tf.gfile.FastGFile(filenames_file, 'r').readlines()
+        filenames = [l.strip() for l in lines]
+
+        lines = tf.gfile.FastGFile(labels_file, 'r').readlines()
+        labels = []
+        labels_text = []
+        for l in lines:
+            parts = l.strip().split(' ')
+            # Encode label to num_class-dim vectors
+            encoded_label = np.zeros(FLAGS.num_classes, dtype=np.float32)
+            text_list = []
+            for part in parts:
+                encoded_label[int(part)] = 1.0
+                text_list.append(label_to_text[int(part)])
+            labels.append(encoded_label.tostring())
+            labels_text.append(text_list)
+
+        """
+        # Shuffle the ordering of all image files in order to guarantee
+        # random ordering of the images with respect to label in the
+        # saved TFRecord files. Make the randomization repeatable.
+        shuffled_index = range(len(filenames))
+        random.seed(12345)
+        random.shuffle(shuffled_index)
+
+        filenames = [filenames[i] for i in shuffled_index]
+        labels = [labels[i] for i in shuffled_index]
+        labels_text = [labels_text[i] for i in shuffled_index]
+        """
+
+        # Break all images <num_shards> shards
+        spacing = np.linspace(0, len(filenames), num_shards + 1).astype(np.int)
+        ranges = []
+        for i in xrange(len(spacing) - 1):
+            ranges.append([spacing[i], spacing[i+1]])
+
+        # Create a generic TensorFlow-based utility for converting all image codings
+        coder = ImageCoder()
+
+        counter = 0
+        for i in xrange(len(ranges)):
+            # Open new TFRecord file
+            tf_filename = self.__get_output_filename(output_dir, name, i, num_shards)
+            files_in_shard = np.arange(ranges[i][0], ranges[i][1], dtype=int)
+            shard_counter = 0
+
+        with tf.python_io.TFRecordWriter(tf_filename) as writer:
+            for j in files_in_shard:
+                filename = filenames[j]
+                label = labels[j]
+                text = labels_text[j]
+
+                image_data, height, width = self.__process_image(data_dir, filename, coder)
+
+                example = self.__convert_to_example(image_data, filename, label, text, height, width)
+                writer.write(example.SerializeToString())
+
+                shard_counter += 1
+                counter += 1
+
+                print('[%s] Processed image %d/%d' % (datetime.now(), counter, len(filenames)))
+                sys.stdout.flush()
+
+            print('[%s] Wrote %d images to %s' %(datetime.now(), shard_counter, tf_filename))
+            sys.stdout.flush()
+
+        print('[%s] Finished converting %d images to %d shards' %(datetime.now(), counter, len(ranges)))
+        sys.stdout.flush()
 
 class ImageCoder(object):
     """Helper class that provides TensorFlow image coding utilities."""
