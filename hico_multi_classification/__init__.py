@@ -16,3 +16,7 @@ __description__  = 'A Benchmark for Recognizing Human-Object Interactions in Ima
 from hico_multi_classification.hico_processor import (
     HicoProcessor
 )
+
+from hico_multi_classification.tfrecord_converter import (
+    TFRecordConverter   
+)
