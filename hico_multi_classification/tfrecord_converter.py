@@ -346,6 +346,8 @@ class TFRecordConverter(object):
                                train_output_dir)
 
     def run(self):
+        """Run tensorflow and start processing datasets."""
+
         tf.app.run(self.__process())
 
 class ImageCoder(object):
