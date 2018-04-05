@@ -302,7 +302,7 @@ class TFRecordConverter(object):
         print('[%s] Finished converting %d images to %d shards' %(datetime.now(), counter, len(ranges)))
         sys.stdout.flush()
 
-    def process(self):
+    def __process(self):
         assert not FLAGS.train_shards % FLAGS.num_threads, ('Please make the FLAGS.num_threads commensurate with FLAGS.train_shards')
         assert not FLAGS.test_shards % FLAGS.num_threads, ('Please make the FLAGS.num_threads commensurate with FLAGS.validation_shards')
   
@@ -344,6 +344,9 @@ class TFRecordConverter(object):
                                FLAGS.train_shards,
                                label_to_text,
                                train_output_dir)
+
+    def run(self):
+        tf.app.run(self.__process())
 
 class ImageCoder(object):
     """Helper class that provides TensorFlow image coding utilities."""
