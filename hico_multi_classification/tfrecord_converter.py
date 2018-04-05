@@ -302,6 +302,49 @@ class TFRecordConverter(object):
         print('[%s] Finished converting %d images to %d shards' %(datetime.now(), counter, len(ranges)))
         sys.stdout.flush()
 
+    def process(self):
+        assert not FLAGS.train_shards % FLAGS.num_threads, ('Please make the FLAGS.num_threads commensurate with FLAGS.train_shards')
+        assert not FLAGS.test_shards % FLAGS.num_threads, ('Please make the FLAGS.num_threads commensurate with FLAGS.validation_shards')
+  
+        if not os.path.exists(FLAGS.output_dir):
+	        os.mkdir(FLAGS.output_dir)
+  
+        print('Saving results to %s' % FLAGS.output_dir)
+	
+        # Build a map from label to object-verb descriptions.
+        label_text_file = os.path.join(FLAGS.data_dir, FLAGS.label_text)
+        label_to_text = self.__build_label_lookup(label_text_file)
+
+        filenames_train_file = os.path.join(FLAGS.data_dir, FLAGS.filenames_train)
+        filenames_test_file = os.path.join(FLAGS.data_dir, FLAGS.filenames_test)
+        labels_train_file = os.path.join(FLAGS.data_dir, FLAGS.labels_train)
+        labels_test_file = os.path.join(FLAGS.data_dir, FLAGS.labels_test)
+        test_dir = os.path.join(FLAGS.data_dir, 'images', 'test2015')
+        train_dir = os.path.join(FLAGS.data_dir, 'images', 'train2015')
+        test_output_dir = os.path.join(FLAGS.output_dir, 'test')
+        train_output_dir = os.path.join(FLAGS.output_dir, 'train')
+
+        if not os.path.exists(test_output_dir):
+            os.makedirs(test_output_dir)
+        if not os.path.exists(train_output_dir):
+            os.makedirs(train_output_dir)
+
+        self.__process_dataset('test',
+                               test_dir,
+                               filenames_test_file,
+                               labels_test_file,
+                               FLAGS.test_shards,
+                               label_to_text,
+                               test_output_dir)
+
+        self.__process_dataset('train',
+                               train_dir,
+                               filenames_train_file,
+                               labels_train_file,
+                               FLAGS.train_shards,
+                               label_to_text,
+                               train_output_dir)
+
 class ImageCoder(object):
     """Helper class that provides TensorFlow image coding utilities."""
 
