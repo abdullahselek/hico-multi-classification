@@ -104,3 +104,6 @@ ENV/
 /hico_data/
 /inception/
 /testdata/hico_data/**/*.txt
+
+# pytest
+.pytest_cache/
