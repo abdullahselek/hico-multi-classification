@@ -109,6 +109,7 @@ class HicoProcessor(object):
 			          filename = map(str, row[0])
 			          filename = ''.join(filename)
 			          f.write('{}\n'.format(filename))
+        print('%s created\n' % output_path)
 
     def process(self):
         """Start processing train and test files."""
